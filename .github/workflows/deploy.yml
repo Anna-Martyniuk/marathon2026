@@ -1,0 +1,39 @@
+name: Deploy Frontend to AWS S3
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: |
+          cd frontend/restaurant-frontend-app
+          npm install --legacy-peer-deps
+
+      - name: Build Angular app
+        run: |
+          cd frontend/restaurant-frontend-app
+          BACKEND_URL=https://tua6ivf325.execute-api.eu-north-1.amazonaws.com/dev npm run build
+
+      - name: Deploy to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --delete
+        env:
+          AWS_S3_BUCKET: 'd34ucqe7etzmpa.cloudfront.net'
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'eu-north-1'
+          SOURCE_DIR: 'frontend/restaurant-frontend-app/dist/restaurant-frontend-app'
