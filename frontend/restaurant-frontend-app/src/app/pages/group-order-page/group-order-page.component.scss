@@ -1,0 +1,60 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  
+  .page-header {
+    margin-bottom: 32px;
+    
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 16px;
+      color: #111827;
+    }
+    
+    .reservation-details {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: #4b5563;
+      font-size: 0.875rem;
+      
+      p {
+        margin: 0;
+      }
+      
+      .address {
+        font-weight: 500;
+        color: #111827;
+      }
+    }
+  }
+
+  .participants {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 40px;
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr;
+    
+    @media (min-width: 600px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .page-footer {
+    .grand-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px;
+      background-color: #f3f4f6;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #111827;
+    }
+  }
+}
