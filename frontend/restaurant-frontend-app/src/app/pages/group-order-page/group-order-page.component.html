@@ -1,28 +1,73 @@
 <main class="page">
-  <header class="page-header">
-    <h1>Group Pre-Order</h1>
-    <div class="reservation-details">
-      <p class="address">{{ invite().LocationAddress }}</p>
-      <p class="time">
-        {{ invite().StartTime | date:'mediumDate' }} • 
-        {{ invite().StartTime | date:'shortTime' }} - {{ invite().EndTime | date:'shortTime' }}
-      </p>
-      <p class="guests">{{ participants().length }} of {{ invite().MaxGuestCount }} guests</p>
+  @if (isLoading()) {
+    <div class="loading-state">Loading group order...</div>
+  } @else if (hasError()) {
+    <div class="error-state">
+      <p>Group reservation not found</p>
+      <button (click)="loadData()">Try again</button>
     </div>
-  </header>
+  } @else {
+    <header class="page-header">
+      <div class="title-row">
+        <h1>Group Pre-Order</h1>
+        <span class="status-badge" [class.submitted]="orderStatus() === 'Submitted'">
+          {{ orderStatus() === 'Submitted' ? 'Sent to Restaurant' : 'Collecting pre-orders' }}
+        </span>
+      </div>
 
-  <ul class="participants">
-    @for (person of participants(); track person.id) {
-      <li>
-        <app-participant-card [participant]="person" />
-      </li>
+      <div class="sync-status-bar">
+        <span class="update-info">
+          @if (refreshError() && lastUpdatedTime()) {
+            Couldn't refresh. Showing data from {{ lastUpdatedTime() }}
+          } @else if (lastUpdatedTime()) {
+            Updated at {{ lastUpdatedTime() }}
+          }
+        </span>
+        <button class="refresh-btn" (click)="manualRefresh()">Refresh</button>
+      </div>
+
+      <div class="reservation-details" *ngIf="invite()">
+        <p class="address">{{ invite().LocationAddress }}</p>
+        <p class="time">
+          {{ invite().StartTime | date:'mediumDate' }} • 
+          {{ invite().StartTime | date:'shortTime' }} - {{ invite().EndTime | date:'shortTime' }}
+        </p>
+        <p class="guests">{{ participants().length }} of {{ invite().MaxGuestCount }} guests</p>
+      </div>
+    </header>
+
+    @if (unsubmittedCount() > 0 && orderStatus() === 'Open') {
+      <div class="warning-banner">
+        {{ unsubmittedCount() }} participant{{ unsubmittedCount() > 1 ? 's' : '' }} haven't submitted their cart yet — their dishes won't be included in the order
+      </div>
     }
-  </ul>
 
-  <footer class="page-footer">
-    <div class="grand-total">
-      <span>Grand Total</span>
-      <span>{{ grandTotal() | currency }}</span>
-    </div>
-  </footer>
+    @if (isOrderEmpty()) {
+      <div class="empty-state">Participants haven't added any dishes yet</div>
+    } @else {
+      <ul class="participants">
+        @for (person of participants(); track person.id) {
+          <li>
+            <app-participant-card [participant]="person" />
+          </li>
+        }
+      </ul>
+    }
+
+    <footer class="page-footer">
+      <div class="grand-total">
+        <span>Grand Total</span>
+        <span>{{ grandTotal() | currency }}</span>
+      </div>
+
+      @if (orderStatus() === 'Open') {
+        <button 
+          class="submit-btn" 
+          [disabled]="!canSubmit()" 
+          (click)="submitOrder()">
+          Submit Pre-Order
+        </button>
+      }
+    </footer>
+  }
 </main>
