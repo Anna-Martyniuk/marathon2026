@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "dgSpecHash": "ypgSMJ4MxEQ=",
+  "success": true,
+  "projectFilePath": "C:\\epam\\марафон19-06\\marathon2026\\backend\\restaurant-backend-app\\dnapp\\lambdas\\reports-handler\\ReportsHandler.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Anna\\.nuget\\packages\\amazon.lambda.apigatewayevents\\2.4.0\\amazon.lambda.apigatewayevents.2.4.0.nupkg.sha512",
+    "C:\\Users\\Anna\\.nuget\\packages\\amazon.lambda.core\\2.2.0\\amazon.lambda.core.2.2.0.nupkg.sha512",
+    "C:\\Users\\Anna\\.nuget\\packages\\amazon.lambda.serialization.systemtextjson\\2.2.0\\amazon.lambda.serialization.systemtextjson.2.2.0.nupkg.sha512",
+    "C:\\Users\\Anna\\.nuget\\packages\\amazon.lambda.sqsevents\\2.2.0\\amazon.lambda.sqsevents.2.2.0.nupkg.sha512",
+    "C:\\Users\\Anna\\.nuget\\packages\\awssdk.core\\4.0.0.13\\awssdk.core.4.0.0.13.nupkg.sha512",
+    "C:\\Users\\Anna\\.nuget\\packages\\awssdk.dynamodbv2\\4.0.1.9\\awssdk.dynamodbv2.4.0.1.9.nupkg.sha512",
+    "C:\\Users\\Anna\\.nuget\\packages\\awssdk.sqs\\4.0.0.12\\awssdk.sqs.4.0.0.12.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1901",
+      "level": "Warning",
+      "message": "Package 'AWSSDK.Core' 4.0.0.13 has a known low severity vulnerability, https://github.com/advisories/GHSA-9cvc-h2w8-phrp",
+      "projectPath": "C:\\epam\\марафон19-06\\marathon2026\\backend\\restaurant-backend-app\\dnapp\\lambdas\\reports-handler\\ReportsHandler.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\epam\\марафон19-06\\marathon2026\\backend\\restaurant-backend-app\\dnapp\\lambdas\\reports-handler\\ReportsHandler.csproj",
+      "libraryId": "AWSSDK.Core",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
+}
