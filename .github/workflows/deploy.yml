@@ -1,38 +1,86 @@
-name: Deploy Frontend to AWS S3
+name: Deploy
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'backend/**'
+
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Run syndicate deploy instead of update'
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  APP_DIR: backend/restaurant-backend-app
+  AWS_REGION: us-west-2
+  DEPLOY_NAME: dev
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: deploy
+      cancel-in-progress: false
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          node-version: 18
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: syndicate-${{ github.run_id }}
 
-      - name: Install dependencies and build
+      - name: Verify identity
+        run: aws sts get-caller-identity
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-syndicate-${{ runner.os }}
+
+      - name: Install AWS Syndicate
+        run: pip install aws-syndicate
+
+      - name: Syndicate build
+        working-directory: ${{ env.APP_DIR }}
         env:
-          BACKEND_URL: ${{ secrets.BACKEND_URL }}
-        run: |
-          cd frontend/restaurant-frontend-app
-          npm install
-          npm run build
+          SDCT_CONF: .syndicate-config-restaurant-backend-app
+        run: syndicate build
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+      - name: Syndicate deploy
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy }}
+        working-directory: ${{ env.APP_DIR }}
+        env:
+          SDCT_CONF: .syndicate-config-restaurant-backend-app
+        run: syndicate deploy --deploy_name ${{ env.DEPLOY_NAME }}
 
-      - name: Deploy to S3
-        run: |
-          aws s3 sync frontend/restaurant-frontend-app/dist s3://restaurant-frontend-887064442400 --delete
+      - name: Syndicate update
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.deploy) }}
+        working-directory: ${{ env.APP_DIR }}
+        env:
+          SDCT_CONF: .syndicate-config-restaurant-backend-app
+        run: syndicate update

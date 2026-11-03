@@ -24,3 +24,6 @@ node_modules/
 *.tfvars.json
 crash.log
 crash.*.log
+
+# Claude Code local state and worktrees
+.claude/
