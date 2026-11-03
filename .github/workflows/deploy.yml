@@ -83,4 +83,4 @@ jobs:
         working-directory: ${{ env.APP_DIR }}
         env:
           SDCT_CONF: .syndicate-config-restaurant-backend-app
-        run: syndicate update
+        run: syndicate update --deploy_name ${{ env.DEPLOY_NAME }}
