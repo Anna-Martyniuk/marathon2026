@@ -21,7 +21,7 @@ permissions:
 
 env:
   APP_DIR: backend/restaurant-backend-app
-  AWS_REGION: us-west-2
+  AWS_REGION: eu-north-1
   DEPLOY_NAME: dev
 
 jobs:
@@ -39,10 +39,10 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-          role-session-name: syndicate-${{ github.run_id }}
-
+          
       - name: Verify identity
         run: aws sts get-caller-identity
 
