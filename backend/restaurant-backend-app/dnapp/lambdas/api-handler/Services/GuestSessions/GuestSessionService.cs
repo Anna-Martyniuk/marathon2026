@@ -20,7 +20,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using APIHandler.Services.Notifications;
-using APIHandler.Models.GroupReservation;
 
 namespace APIHandler.Services.GuestSessions;
 
@@ -356,58 +355,9 @@ public class GuestSessionService(
 
         return new GetGuestSessionResponse(name, items, total, session.IsSubmitted);
     }
-public async Task<GetGroupSessionsSnapshotResponse> GetGroupSessionsSnapshotAsync(string groupReservationId)
-{
-    var sessions = await guestSessionRepository.GetAllByGroupReservationIdAsync(groupReservationId);
-    
-    var participants = new List<ParticipantDto>();
-    decimal groupTotal = 0;
-
-    foreach (var session in sessions)
-    {
-        var participantItems = new List<ParticipantItemDto>();
-        decimal participantTotal = 0;
-
-        if (session.Dishes != null)
-        {
-            foreach (var dish in session.Dishes)
-            {
-                
-                participantItems.Add(new ParticipantItemDto
-                {
-                    Dish = new DishDto
-                    {
-                        Id = dish.DishId,
-                        Name = "Unknown Dish", 
-                        Price = 0 
-                    },
-                    Quantity = dish.Quantity
-                });
-                
-            }
-        }
-
-        participants.Add(new ParticipantDto
-        {
-            Id = session.Id,
-            Type = session.IsOwnerSession ? "Owner" : "Guest",
-            Name = session.GuestName,
-            Items = participantItems,
-            Total = participantTotal,
-            IsSubmitted = session.IsSubmitted
-        });
-
-        groupTotal += participantTotal;
-    }
-
-    return new GetGroupSessionsSnapshotResponse
-    {
-        Participants = participants,
-        Total = groupTotal
-    };
-}
 
 }
+
 
 
 

@@ -11,9 +11,6 @@ using APIHandler.Services.Auth;
 using APIHandler.Services.Locations;
 using System;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
-using APIHandler.Repositories.Orders;
 
 namespace APIHandler.Services.GroupReservations;
 
@@ -22,7 +19,6 @@ public class GroupReservationService(
     ITableRepository tableRepository,
     IReservationRepository reservationRepository,
     IGuestSessionRepository guestSessionRepository,
-    IOrderRepository orderRepository,
     IUserService userService,
     ILocationService locationService) : IGroupReservationService
 {
@@ -146,58 +142,5 @@ public class GroupReservationService(
 
         return new GetGroupInviteTokenResponse(groupReservation.ReservationToken);
     }
-    public async Task<List<SubmitGroupPreOrderResponseItem>> SubmitGroupPreOrderAsync(string groupReservationId, string reservationId, string userId)
-{
-    var groupReservation = await groupReservationRepository.GetGroupReservationByIdAsync(groupReservationId);
-    if (groupReservation == null)
-        throw new KeyNotFoundException("Group reservation not found."); 
-
-    
-    var reservation = await reservationRepository.GetReservationByIdAsync(reservationId);
-    if (reservation == null)
-        throw new KeyNotFoundException("Reservation not found."); 
-
-    if (reservation.CustomerId != userId) 
-        throw new UnauthorizedAccessException("Only Owner can submit the pre-order.");
-
-    var allSessions = await guestSessionRepository.GetAllByGroupReservationIdAsync(groupReservationId);
-    
-    var submittedSessions = allSessions.Where(s => s.IsSubmitted).ToList();
-    if (!submittedSessions.Any())
-        throw new ValidationException("No submitted guest sessions found."); // 400
-
-    var consolidatedDishes = submittedSessions
-        .Where(s => s.Dishes != null)
-        .SelectMany(s => s.Dishes)
-        .GroupBy(d => d.DishId)
-        .Select(g => new OrderItem 
-        { 
-            DishId = g.Key, 
-            Quantity = g.Sum(x => x.Quantity),
-           
-        })
-        .ToList();
-
-    if (!consolidatedDishes.Any())
-        throw new ValidationException("No dishes found in submitted sessions."); // 400
-
-    var order = await orderRepository.GetOrderByReservationIdAsync(reservationId);
-    if (order == null)
-        throw new ValidationException("Order not found."); // 400
-
-    order.Dishes = consolidatedDishes;
-    order.Status = OrderStatus.SubmittedByCustomer; 
-    groupReservation.Status = GroupReservationStatus.Submitted; 
-
-    await orderRepository.SaveOrderAsync(order);
-    await groupReservationRepository.SaveGroupReservationAsync(groupReservation);
-
-    // 9. Формуємо відповідь
-    return consolidatedDishes.Select(d => new SubmitGroupPreOrderResponseItem
-    {
-        DishId = d.DishId,
-        Quantity = d.Quantity
-    }).ToList();
-}
 }
 
