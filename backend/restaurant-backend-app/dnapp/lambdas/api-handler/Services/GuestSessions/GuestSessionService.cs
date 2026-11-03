@@ -355,7 +355,10 @@ public class GuestSessionService(
 
         return new GetGuestSessionResponse(name, items, total, session.IsSubmitted);
     }
-
+public async Task<object> GetGroupSessionsSnapshotAsync(string groupReservationId)
+{
+    return await Task.FromResult<object>(new { });
+}
 }
 
 
