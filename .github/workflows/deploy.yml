@@ -19,6 +19,8 @@ jobs:
           node-version: 18
 
       - name: Install dependencies and build
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
         run: |
           cd frontend/restaurant-frontend-app
           npm install
