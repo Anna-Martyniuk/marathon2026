@@ -82,9 +82,24 @@ public class GetAllDishesHandler : IApiRequestHandler
 
         dishes = SortDishes(dishes, sortBy, popularityMap);
 
+        // Явний мапінг полів для уникнення помилок з DishMapper
         var responseList = dishes
-            .Select(d => DishMapper.ToDishListResponse(d))
-            .Where(res => res != null)
+            .Select(d => new 
+            {
+                id = d.Id,
+                name = d.Name,
+                description = d.Description,
+                price = d.Price,
+                weight = d.Weight,
+                calories = d.Calories,
+                proteins = d.Proteins,
+                fats = d.Fats,
+                carbohydrates = d.Carbohydrates,
+                vitamins = d.Vitamins,
+                imageUrl = d.ImageUrl,
+                locationId = d.LocationId,
+                dishType = d.DishType.ToString()
+            })
             .ToList();
 
         return ResponseBuilder.CreateJsonResponse(200, responseList);
