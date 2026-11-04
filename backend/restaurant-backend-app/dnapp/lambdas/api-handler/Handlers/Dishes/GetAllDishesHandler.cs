@@ -69,11 +69,17 @@ public class GetAllDishesHandler : IApiRequestHandler
                 ?? new Dictionary<string, int>();
         }
 
-        if (!string.IsNullOrEmpty(dishType) &&
-            Enum.TryParse<DishType>(dishType, ignoreCase: true, out var parsedType))
-        {
-            dishes = dishes.Where(d => d.DishType == parsedType).ToList();
-        }
+        if (!string.IsNullOrEmpty(dishType))
+{
+    var normalizedDishType = dishType.EndsWith("s", StringComparison.OrdinalIgnoreCase) 
+        ? dishType 
+        : dishType + "s";
+
+    if (Enum.TryParse<DishType>(normalizedDishType, ignoreCase: true, out var parsedType))
+    {
+        dishes = dishes.Where(d => d.DishType == parsedType).ToList();
+    }
+}
 
         if (!string.IsNullOrEmpty(name))
         {
