@@ -60,10 +60,13 @@ public class GetAllDishesHandler : IApiRequestHandler
                 })
                 .GetRemainingAsync();
 
-            popularityMap = orders
-                .SelectMany(o => o.Dishes)
-                .GroupBy(item => item.DishId)
-                .ToDictionary(g => g.Key, g => g.Count());
+           popularityMap = orders?
+    .Where(o => o != null && o.Dishes != null)
+    .SelectMany(o => o.Dishes)
+    .Where(d => d != null && !string.IsNullOrEmpty(d.DishId))
+    .GroupBy(item => item.DishId)
+    .ToDictionary(g => g.Key, g => g.Count()) 
+    ?? new Dictionary<string, int>();
         }
 
         if (!string.IsNullOrEmpty(dishType) &&
